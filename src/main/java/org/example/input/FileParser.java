@@ -1,13 +1,14 @@
 package org.example.input;
 
 import org.example.model.InputArticle;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+@Component
 public class FileParser {
 
     private static final String SRC_PATH = "src/main/resources/";
