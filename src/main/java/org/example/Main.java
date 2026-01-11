@@ -1,29 +1,13 @@
 package org.example;
 
-import org.example.input.FileParser;
-import org.example.model.InputArticle;
-import org.example.scraper.DriverFactory;
-import org.example.scraper.OutletScraper;
-import org.openqa.selenium.WebDriver;
 
-import java.io.IOException;
-import java.util.List;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
-        String fileName = "list.txt";
-        FileParser fileParser = new FileParser();
-        List<InputArticle> list;
-        try {
-            list = fileParser.readFile(fileName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        DriverFactory driverFactory = new DriverFactory();
-        WebDriver webDriver = driverFactory.create("firefox");
-        OutletScraper outletScraper = new OutletScraper(list, webDriver);
-        outletScraper.doScrape();
+        SpringApplication.run(Main.class, args);
     }
 }
