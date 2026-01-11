@@ -2,12 +2,16 @@ package org.example;
 
 import org.example.input.FileParser;
 import org.example.model.InputArticle;
+import org.example.scraper.DriverFactory;
+import org.example.scraper.OutletScraper;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.IOException;
+import java.sql.Driver;
 import java.util.List;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 public class Main {
     public static void main(String[] args) {
         String fileName = "list.txt";
@@ -19,6 +23,9 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        System.out.println(list.get(0));
+        DriverFactory driverFactory = new DriverFactory();
+        WebDriver webDriver = driverFactory.create("firefox");
+        OutletScraper outletScraper = new OutletScraper(list, webDriver);
+        outletScraper.doScrape();
     }
 }
