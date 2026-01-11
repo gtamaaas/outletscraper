@@ -4,13 +4,22 @@ public class OutPutArticle {
     private String name;
     private String size;
     private double price;
+    private boolean available;
 
-    public OutPutArticle(String name, String size, double price) {
+    public OutPutArticle(String name, boolean available, double price, String size) {
         this.name = name;
-        this.size = size;
+        this.available = available;
         this.price = price;
+        this.size = size;
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
     public String getName() {
         return name;
@@ -34,6 +43,16 @@ public class OutPutArticle {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    @Override
+    public String toString() {
+        return "OutPutArticle{" +
+                "name='" + name + '\'' +
+                ", size='" + size + '\'' +
+                ", price=" + price +
+                ", available=" + available +
+                '}';
     }
 }
 
