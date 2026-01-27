@@ -1,5 +1,6 @@
 package com.example.OutletScraper.dto;
 
+import com.example.OutletScraper.model.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,5 +8,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class CreateArticleDTO {
     private String name;
-    private String size;
+    private Size size;
 }
