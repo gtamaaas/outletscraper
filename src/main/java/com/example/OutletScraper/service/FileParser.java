@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 public class FileParser {
 
     private static final String FILE_PATH = "src/main/resources/data/list.txt";
-
     private static final String REGEX_PATTERN = "(https:\\/\\/)?www.mangooutlet.com\\/ro";
 
 
@@ -24,9 +23,18 @@ public class FileParser {
         Pattern pattern = Pattern.compile(REGEX_PATTERN, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(url);
         boolean matchFound = matcher.find();
-        if (matchFound) {
+        if (!matchFound) {
             throw new RuntimeException("Not a valid mangoutlet URL! Should be: mangooutlet.com/ro");
         }
+    }
+
+    private void checkCorrectSize(String size) {
+        try {
+            Size.valueOf(size.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid size: " + size, e);
+        }
+
     }
 
     @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
@@ -38,6 +46,7 @@ public class FileParser {
             ++lineCount;
             while (line != null) {
                 String[] array = line.split(" ");
+
                 if(array.length != 2) {
                     throw new RuntimeException(
                             "Invalid line at "
@@ -46,8 +55,9 @@ public class FileParser {
                     );
                 }
                 checkValidUrl(array[0]);
-                line = br.readLine();
+                checkCorrectSize(array[1]);
                 CreateArticleDTO createArticleDTO = new CreateArticleDTO(array[0], array[1]);
+                line = br.readLine();
                 log.info("Created articleDTO" + createArticleDTO.toString());
             }
         } catch (IOException e) {
