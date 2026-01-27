@@ -20,7 +20,7 @@ public class ValidationHelperTests {
     void invalidSize_shouldThrowException() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> validator.checkCorrectSize("not a szie")
+                () -> validator.checkCorrectSize("Not a size")
         );
 
         assertTrue(exception.getMessage().contains("Invalid size"));
