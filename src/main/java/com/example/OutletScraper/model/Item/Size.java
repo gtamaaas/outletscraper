@@ -1,4 +1,4 @@
-package com.example.OutletScraper.model.Article;
+package com.example.OutletScraper.model.Item;
 
 // add pant sizes
 public enum Size {

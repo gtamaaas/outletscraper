@@ -1,9 +1,9 @@
 package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.CreateArticleDTO;
-import com.example.OutletScraper.model.Article.Item;
-import com.example.OutletScraper.model.Article.CurrentState;
-import com.example.OutletScraper.model.Article.ScrapeObservation;
+import com.example.OutletScraper.model.Item.Item;
+import com.example.OutletScraper.model.Item.CurrentState;
+import com.example.OutletScraper.model.Item.ScrapeObservation;
 import com.example.OutletScraper.repository.ItemRepository;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,28 +11,42 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Optional;
 
 @Slf4j
 @Service
-public class ScraperService {
+public class ItemService {
 
 
     private final ItemRepository itemRepository;
     private final ScrapeObservationRepository scrapeObservationRepository;
 
-    public ScraperService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository) {
+    public ItemService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository) {
         this.itemRepository = itemRepository;
         this.scrapeObservationRepository = scrapeObservationRepository;
     }
 
-    public void scrape(CreateArticleDTO dto) {
+    public double findPreviousPrice(Item item) {
+        String itemId = item.getId();
+        Optional<ScrapeObservation> newestObservation =
+                scrapeObservationRepository.findAllByItemId(itemId)
+                        .stream()
+                        .filter(elem -> elem.getScrapedAt() != null)
+                        .max(Comparator.comparing(ScrapeObservation::getScrapedAt));
+
+        return 1.0;
+    }
+
+
+    public void updateItem(CreateArticleDTO dto) {
         log.info("Scraping" + dto.toString());
 
         Item item = itemRepository
                 .findByUrl(dto.getUrl())
-                .orElseGet(() -> createInitialArticle(dto));
+                .orElseGet(() -> createInitialItem(dto));
 
-        CurrentState currentState = secondaryScrape(item);
+        CurrentState currentState = secondaryUpdate(item);
 
         item.setCurrentState(currentState);
         item.setAvailable(isAvailable());
@@ -45,7 +59,7 @@ public class ScraperService {
     }
 
 
-    private Item createInitialArticle(CreateArticleDTO dto) {
+    private Item createInitialItem(CreateArticleDTO dto) {
         log.info("Creating new article for {}", dto.getUrl());
 
         Item item = new Item();
@@ -55,15 +69,14 @@ public class ScraperService {
         item.setAvailable(isAvailable());
 
 
-
-
         return itemRepository.save(item);
     }
 
 
 
+
     @Transactional
-    public CurrentState secondaryScrape(Item item) {
+    public CurrentState secondaryUpdate(Item item) {
         log.info("Performing secondary scrape for {}", item.getUrl());
 
         LocalDateTime now = LocalDateTime.now();
@@ -84,6 +97,9 @@ public class ScraperService {
         // Current state (latest snapshot)
         CurrentState currentState = new CurrentState();
         currentState.setPrice(getPrice());
+        // TODO
+        // findOlderpRice
+        findPreviousPrice(item);
         currentState.setDiscountPercent(getPercentage());
 
         return currentState;
@@ -96,7 +112,7 @@ public class ScraperService {
 
     public double getPrice() {
         //implement later
-        return 100.0;
+        return 5.0;
     }
 
     public int getPercentage() {

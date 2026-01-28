@@ -1,6 +1,6 @@
 package com.example.OutletScraper.dto;
 
-import com.example.OutletScraper.model.Article.Size;
+import com.example.OutletScraper.model.Item.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

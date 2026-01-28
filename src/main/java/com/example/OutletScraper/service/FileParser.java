@@ -3,8 +3,8 @@ package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.CreateArticleDTO;
 import com.example.OutletScraper.helpers.ValidationHelpers;
-import com.example.OutletScraper.model.Article.Item;
-import com.example.OutletScraper.model.Article.Size;
+import com.example.OutletScraper.model.Item.Item;
+import com.example.OutletScraper.model.Item.Size;
 import com.example.OutletScraper.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

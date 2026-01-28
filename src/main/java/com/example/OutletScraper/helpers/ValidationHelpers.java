@@ -1,6 +1,6 @@
 package com.example.OutletScraper.helpers;
 
-import com.example.OutletScraper.model.Article.Size;
+import com.example.OutletScraper.model.Item.Size;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
