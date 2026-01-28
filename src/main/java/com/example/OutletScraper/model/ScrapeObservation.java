@@ -20,7 +20,7 @@ public class ScrapeObservation {
 
     @Id
     private String id;
-    private String articleId;
+    private String itemId;
 
     private double price;
     private int discountPercent;

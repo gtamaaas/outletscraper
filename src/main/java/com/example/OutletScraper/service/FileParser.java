@@ -3,11 +3,10 @@ package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.CreateArticleDTO;
 import com.example.OutletScraper.helpers.ValidationHelpers;
-import com.example.OutletScraper.model.Article.Article;
+import com.example.OutletScraper.model.Article.Item;
 import com.example.OutletScraper.model.Article.Size;
-import com.example.OutletScraper.repository.ArticleRepository;
+import com.example.OutletScraper.repository.ItemRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -21,14 +20,14 @@ public class FileParser {
 
 
     private final ValidationHelpers validationhelpers;
-    private final ArticleRepository articleRepository;
+    private final ItemRepository itemRepository;
 
-    public FileParser(ValidationHelpers validationhelpers, ArticleRepository articleRepository) {
+    public FileParser(ValidationHelpers validationhelpers, ItemRepository itemRepository) {
         this.validationhelpers = validationhelpers;
-        this.articleRepository = articleRepository;
+        this.itemRepository = itemRepository;
     }
 
-    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
+//    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
     public void readFile() {
         log.info("Opening file");
         int lineCount = 0;
@@ -48,10 +47,10 @@ public class FileParser {
                 validationhelpers.checkCorrectSize(array[1]);
                 CreateArticleDTO createArticleDTO = new CreateArticleDTO(array[0], Size.valueOf(array[1]));
                 line = br.readLine();
-                Article article = new Article();
-                article.setUrl(createArticleDTO.getName());
-                article.setSize(createArticleDTO.getSize());
-                articleRepository.insert(article);
+                Item item = new Item();
+                item.setUrl(createArticleDTO.getUrl());
+                item.setSize(createArticleDTO.getSize());
+                itemRepository.insert(item);
                 log.info("Created articleDTO" + createArticleDTO.toString());
             }
         } catch (IOException e) {

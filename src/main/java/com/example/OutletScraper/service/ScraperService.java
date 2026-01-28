@@ -1,69 +1,70 @@
 package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.CreateArticleDTO;
-import com.example.OutletScraper.model.Article.Article;
+import com.example.OutletScraper.model.Article.Item;
 import com.example.OutletScraper.model.Article.CurrentState;
 import com.example.OutletScraper.model.Article.ScrapeObservation;
-import com.example.OutletScraper.repository.ArticleRepository;
+import com.example.OutletScraper.repository.ItemRepository;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Slf4j
 @Service
 public class ScraperService {
 
 
-    private final ArticleRepository articleRepository;
+    private final ItemRepository itemRepository;
     private final ScrapeObservationRepository scrapeObservationRepository;
 
-    public ScraperService(ArticleRepository articleRepository, ScrapeObservationRepository scrapeObservationRepository) {
-        this.articleRepository = articleRepository;
+    public ScraperService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository) {
+        this.itemRepository = itemRepository;
         this.scrapeObservationRepository = scrapeObservationRepository;
     }
 
     public void scrape(CreateArticleDTO dto) {
-        log.info("Scraping {}", dto);
+        log.info("Scraping" + dto.toString());
 
-        Article article = articleRepository
+        Item item = itemRepository
                 .findByUrl(dto.getUrl())
                 .orElseGet(() -> createInitialArticle(dto));
 
-        CurrentState currentState = secondaryScrape(article);
+        CurrentState currentState = secondaryScrape(item);
 
-        article.setCurrentState(currentState);
-        article.setAvailable(isAvailable());
-        articleRepository.save(article);
+        item.setCurrentState(currentState);
+        item.setAvailable(isAvailable());
+        LocalDateTime now = LocalDateTime.now();
+        item.setFirstSeenAt(now);
+        item.setLastSeenAt(now);
+        itemRepository.save(item);
 
-        log.info("Saved article {}", article);
+        log.info("Saved article {}", item);
     }
 
 
-    private Article createInitialArticle(CreateArticleDTO dto) {
+    private Item createInitialArticle(CreateArticleDTO dto) {
         log.info("Creating new article for {}", dto.getUrl());
 
-        Article article = new Article();
-        article.setName(getName());
-        article.setSize(dto.getSize());
-        article.setUrl(dto.getUrl());
-        article.setAvailable(isAvailable());
+        Item item = new Item();
+        item.setName(getName());
+        item.setSize(dto.getSize());
+        item.setUrl(dto.getUrl());
+        item.setAvailable(isAvailable());
 
-        LocalDateTime now = LocalDateTime.now();
-        article.setFirstSeenAt(now);
-        article.setLastSeenAt(now);
 
-        return articleRepository.save(article);
+
+
+        return itemRepository.save(item);
     }
 
 
 
     @Transactional
-    public CurrentState secondaryScrape(Article article) {
-        log.info("Performing secondary scrape for {}", article.getUrl());
+    public CurrentState secondaryScrape(Item item) {
+        log.info("Performing secondary scrape for {}", item.getUrl());
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -73,12 +74,12 @@ public class ScraperService {
         observation.setDiscountPercent(getPercentage());
         observation.setAvailability(isAvailable());
         observation.setScrapedAt(now);
-        observation.setArticleId(article.getId());
+        observation.setItemId(item.getId());
 
         scrapeObservationRepository.save(observation);
 
         // Update article timestamps
-        article.setLastSeenAt(now);
+        item.setLastSeenAt(now);
 
         // Current state (latest snapshot)
         CurrentState currentState = new CurrentState();
