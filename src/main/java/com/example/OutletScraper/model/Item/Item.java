@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 
-@Document(collection = "articles")
+@Document(collection = "items")
 @Data
 @NoArgsConstructor
 @Builder
@@ -21,7 +21,7 @@ public class Item {
     private String name;
     private String url;
     private Size size;
-    private boolean isAvailable;
+
 
     private LocalDateTime firstSeenAt;
     private LocalDateTime lastSeenAt;

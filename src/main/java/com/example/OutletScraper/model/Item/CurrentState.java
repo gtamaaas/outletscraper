@@ -15,4 +15,5 @@ public class CurrentState {
     private double price;
     private double originalPrice;
     private int discountPercent;
+    private boolean available;
 }
