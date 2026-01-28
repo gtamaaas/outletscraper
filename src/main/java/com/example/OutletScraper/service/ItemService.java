@@ -21,10 +21,12 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ScrapeObservationRepository scrapeObservationRepository;
+    private final Scraper scraper;
 
-    public ItemService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository) {
+    public ItemService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository, Scraper scraper) {
         this.itemRepository = itemRepository;
         this.scrapeObservationRepository = scrapeObservationRepository;
+        this.scraper = scraper;
     }
 
     public double findPreviousPrice(Item item) {
@@ -49,7 +51,7 @@ public class ItemService {
         CurrentState currentState = secondaryUpdate(item);
 
         item.setCurrentState(currentState);
-        item.setAvailable(isAvailable());
+        item.setAvailable(scraper.isAvailable());
         LocalDateTime now = LocalDateTime.now();
         item.setFirstSeenAt(now);
         item.setLastSeenAt(now);
@@ -63,10 +65,10 @@ public class ItemService {
         log.info("Creating new article for {}", dto.getUrl());
 
         Item item = new Item();
-        item.setName(getName());
+        item.setName(scraper.getName());
         item.setSize(dto.getSize());
         item.setUrl(dto.getUrl());
-        item.setAvailable(isAvailable());
+        item.setAvailable(scraper.isAvailable());
 
 
         return itemRepository.save(item);
@@ -83,9 +85,9 @@ public class ItemService {
 
         // Observation (history)
         ScrapeObservation observation = new ScrapeObservation();
-        observation.setPrice(getPrice());
-        observation.setDiscountPercent(getPercentage());
-        observation.setAvailability(isAvailable());
+        observation.setPrice(scraper.getPrice());
+        observation.setDiscountPercent(scraper.getPercentage());
+        observation.setAvailability(scraper.isAvailable());
         observation.setScrapedAt(now);
         observation.setItemId(item.getId());
 
@@ -96,33 +98,14 @@ public class ItemService {
 
         // Current state (latest snapshot)
         CurrentState currentState = new CurrentState();
-        currentState.setPrice(getPrice());
+        currentState.setPrice(scraper.getPrice());
         // TODO
         // findOlderpRice
         findPreviousPrice(item);
-        currentState.setDiscountPercent(getPercentage());
+        currentState.setDiscountPercent(scraper.getPercentage());
 
         return currentState;
     }
 
-    public String getName() {
-        // scraper logic IMPLEMENT
-        return "pantofi";
-    }
-
-    public double getPrice() {
-        //implement later
-        return 5.0;
-    }
-
-    public int getPercentage() {
-        //implement later
-        return 10;
-    }
-
-    private boolean isAvailable() {
-        //implement later
-        return true;
-    }
 
 }
