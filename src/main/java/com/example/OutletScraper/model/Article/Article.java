@@ -21,7 +21,6 @@ public class Article {
     private String name;
     private String url;
     private Size size;
-    private double price;
     private boolean isAvailable;
 
     private LocalDateTime firstSeenAt;
