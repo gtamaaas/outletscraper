@@ -10,16 +10,16 @@ public class Scraper {
     }
 
     public double getPrice() {
-        return 0;
+        return 50;
     }
 
 
     public int getPercentage() {
-        return 0;
+        return 10;
     }
 
 
     public boolean isAvailable() {
-        return false;
+        return true;
     }
 }

@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CurrentState {
     private double price;
-    private double oldPrice;
+    private double originalPrice;
     private int discountPercent;
 }

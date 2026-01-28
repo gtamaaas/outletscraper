@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CreateArticleDTO {
+public class CreateItemDto {
     private String url;
     private Size size;
 }

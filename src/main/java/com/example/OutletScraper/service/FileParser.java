@@ -1,7 +1,7 @@
 package com.example.OutletScraper.service;
 
 
-import com.example.OutletScraper.dto.CreateArticleDTO;
+import com.example.OutletScraper.dto.CreateItemDto;
 import com.example.OutletScraper.helpers.ValidationHelpers;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.Size;
@@ -45,13 +45,13 @@ public class FileParser {
                 }
                 validationhelpers.checkValidUrl(array[0]);
                 validationhelpers.checkCorrectSize(array[1]);
-                CreateArticleDTO createArticleDTO = new CreateArticleDTO(array[0], Size.valueOf(array[1]));
+                CreateItemDto createItemDto = new CreateItemDto(array[0], Size.valueOf(array[1]));
                 line = br.readLine();
                 Item item = new Item();
-                item.setUrl(createArticleDTO.getUrl());
-                item.setSize(createArticleDTO.getSize());
+                item.setUrl(createItemDto.getUrl());
+                item.setSize(createItemDto.getSize());
                 itemRepository.insert(item);
-                log.info("Created articleDTO" + createArticleDTO.toString());
+                log.info("Created articleDTO" + createItemDto.toString());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
