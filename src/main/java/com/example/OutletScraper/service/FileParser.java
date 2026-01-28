@@ -3,8 +3,8 @@ package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.CreateArticleDTO;
 import com.example.OutletScraper.helpers.ValidationHelpers;
-import com.example.OutletScraper.model.Article;
-import com.example.OutletScraper.model.Size;
+import com.example.OutletScraper.model.Article.Article;
+import com.example.OutletScraper.model.Article.Size;
 import com.example.OutletScraper.repository.ArticleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

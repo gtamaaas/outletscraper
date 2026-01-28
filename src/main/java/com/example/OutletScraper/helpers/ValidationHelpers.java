@@ -1,7 +1,6 @@
 package com.example.OutletScraper.helpers;
 
-import com.example.OutletScraper.model.Size;
-import lombok.NoArgsConstructor;
+import com.example.OutletScraper.model.Article.Size;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
