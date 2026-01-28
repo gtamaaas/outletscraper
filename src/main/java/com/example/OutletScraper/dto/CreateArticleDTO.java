@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CreateArticleDTO {
-    private String name;
+    private String url;
     private Size size;
 }

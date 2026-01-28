@@ -14,5 +14,6 @@ public class Analytics {
     private double lowestPriceEver;
     private double avgPrice30d;
     private boolean isFakeDiscount;
+    private int daysSinceObserved;
 
 }
