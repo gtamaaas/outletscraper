@@ -6,10 +6,14 @@ import com.example.OutletScraper.model.Article.CurrentState;
 import com.example.OutletScraper.model.Article.ScrapeObservation;
 import com.example.OutletScraper.repository.ArticleRepository;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+@Slf4j
 @Service
 public class ScraperService {
 
@@ -22,42 +26,64 @@ public class ScraperService {
         this.scrapeObservationRepository = scrapeObservationRepository;
     }
 
-    public void initialScrape(CreateArticleDTO createArticleDTO) {
-        Article article = new Article();
-        article.setName(getName());
-        article.setSize(createArticleDTO.getSize());
+    public void scrape(CreateArticleDTO dto) {
+        log.info("Scraping {}", dto);
 
+        Article article = articleRepository
+                .findByUrl(dto.getUrl())
+                .orElseGet(() -> createInitialArticle(dto));
 
-        article.setAvailable(isAvailable());
+        CurrentState currentState = secondaryScrape(article);
 
-        CurrentState currentState = observeScrape(article);
         article.setCurrentState(currentState);
-
+        article.setAvailable(isAvailable());
         articleRepository.save(article);
+
+        log.info("Saved article {}", article);
     }
 
-    public CurrentState observeScrape(Article article) {
-        ScrapeObservation scrapeObservation = new ScrapeObservation();
-        scrapeObservation.setPrice(getPrice());
-        scrapeObservation.setDiscountPercent(getPercentage());
-        scrapeObservation.setAvailability(isAvailable());
+
+    private Article createInitialArticle(CreateArticleDTO dto) {
+        log.info("Creating new article for {}", dto.getUrl());
+
+        Article article = new Article();
+        article.setName(getName());
+        article.setSize(dto.getSize());
+        article.setUrl(dto.getUrl());
+        article.setAvailable(isAvailable());
+
+        LocalDateTime now = LocalDateTime.now();
+        article.setFirstSeenAt(now);
+        article.setLastSeenAt(now);
+
+        return articleRepository.save(article);
+    }
 
 
-        LocalDateTime currentTimeStamp = LocalDateTime.now();
-        scrapeObservation.setScrapedAt(currentTimeStamp);
-        if(article.getFirstSeenAt() == null)
-            article.setFirstSeenAt(currentTimeStamp);
-        article.setLastSeenAt(currentTimeStamp);
 
+    @Transactional
+    public CurrentState secondaryScrape(Article article) {
+        log.info("Performing secondary scrape for {}", article.getUrl());
 
+        LocalDateTime now = LocalDateTime.now();
+
+        // Observation (history)
+        ScrapeObservation observation = new ScrapeObservation();
+        observation.setPrice(getPrice());
+        observation.setDiscountPercent(getPercentage());
+        observation.setAvailability(isAvailable());
+        observation.setScrapedAt(now);
+        observation.setArticleId(article.getId());
+
+        scrapeObservationRepository.save(observation);
+
+        // Update article timestamps
+        article.setLastSeenAt(now);
+
+        // Current state (latest snapshot)
         CurrentState currentState = new CurrentState();
         currentState.setPrice(getPrice());
-        // TODO
-        // old price
         currentState.setDiscountPercent(getPercentage());
-
-        scrapeObservationRepository.save(scrapeObservation);
-
 
         return currentState;
     }
