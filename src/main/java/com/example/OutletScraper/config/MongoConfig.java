@@ -14,7 +14,7 @@ public class MongoConfig {
     @Bean
     public MongoDatabaseFactory mongoDbFactory() {
         MongoClient mongoClient = MongoClients.create("mongodb://127.0.0.1:27017");
-        return new SimpleMongoClientDatabaseFactory(mongoClient, "databasenamehere");
+        return new SimpleMongoClientDatabaseFactory(mongoClient, "OutletScraperDatabase");
     }
 
     @Bean
