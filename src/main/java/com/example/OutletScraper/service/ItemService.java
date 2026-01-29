@@ -12,6 +12,7 @@ import com.example.OutletScraper.repository.ItemRepository;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
 import com.example.OutletScraper.scraper.OutletScraper;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.WebDriver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,14 +40,15 @@ public class ItemService {
         this.alertService = alertService;
     }
 
-    public void updateItem(CreateItemDto dto) {
+    public void updateItem(CreateItemDto dto, WebDriver webDriver) {
         log.info("Scraping {}", dto);
 
         Item item = itemRepository
                 .findByUrl(dto.getUrl())
-                .orElseGet(() -> createInitialItem(dto));
+                .orElseGet(() -> createInitialItem(dto, webDriver));
 
-        secondaryUpdate(item);
+        secondaryUpdate(item, webDriver);
+
 
         itemRepository.save(item);
 
@@ -54,10 +56,10 @@ public class ItemService {
     }
 
 
-    private Item createInitialItem(CreateItemDto dto) {
+    private Item createInitialItem(CreateItemDto dto, WebDriver webDriver) {
         log.info("Creating new article for {}", dto.getUrl());
 
-        InitialScrapeResultDto initialScrapeResultDto = scraper.initialScrape(dto.getUrl(), dto.getSize());
+        InitialScrapeResultDto initialScrapeResultDto = scraper.initialScrape(dto.getUrl(), dto.getSize(), webDriver);
 
         Item item = new Item();
         item.setName(initialScrapeResultDto.getName());
@@ -79,9 +81,9 @@ public class ItemService {
 
 
     @Transactional
-    public void secondaryUpdate(Item item) {
+    public void secondaryUpdate(Item item, WebDriver webDriver) {
         log.info("Performing secondary scrape for {}", item.getUrl());
-        SecondaryScrapeResultDto secondaryScrapeResultDto = scraper.secondaryScrape(item.getUrl(), item.getSize());
+        SecondaryScrapeResultDto secondaryScrapeResultDto = scraper.secondaryScrape(item.getUrl(), item.getSize(), webDriver);
         LocalDateTime now = LocalDateTime.now();
 
         ScrapeObservation observation = new ScrapeObservation();

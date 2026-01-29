@@ -2,6 +2,7 @@ package com.example.OutletScraper.controller;
 
 
 import com.example.OutletScraper.dto.CreateItemDto;
+import com.example.OutletScraper.scraper.FileScrapeJob;
 import com.example.OutletScraper.service.FileParser;
 import com.example.OutletScraper.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,31 +22,28 @@ public class ItemController {
     private final FileParser fileParser;
     private final ItemService itemService;
     private final String inputFile;
+    private final FileScrapeJob fileScrapeJob;
 
     public ItemController(
             FileParser fileParser,
             ItemService itemService,
-            @Value("${scraper.input-file}") String inputFile) {
+            @Value("${scraper.input-file}") String inputFile,
+            FileScrapeJob fileScrapeJob) {
 
         this.fileParser = fileParser;
         this.itemService =  itemService;
         this.inputFile = inputFile;
+        this.fileScrapeJob = fileScrapeJob;
     }
 
 
     @PostMapping("/read-from-file")
     public ResponseEntity<String> scrapeFromFile() {
-        log.info("Starting scrape from file: {}");
 
-        List<CreateItemDto> items = fileParser.readFile(inputFile);
-
-        for (CreateItemDto dto : items) {
-            itemService.updateItem(dto);
-        }
-
+        int processed = fileScrapeJob.run();
 
         return ResponseEntity.ok(
-                "Processed " + items.size() + " items from file"
+                "Processed " + processed + " items from file"
         );
     }
 
