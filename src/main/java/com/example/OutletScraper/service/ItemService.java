@@ -1,6 +1,6 @@
 package com.example.OutletScraper.service;
 
-import com.example.OutletScraper.dto.CreateArticleDTO;
+import com.example.OutletScraper.dto.CreateItemDto;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.CurrentState;
 import com.example.OutletScraper.model.Item.ScrapeObservation;
@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,47 +27,39 @@ public class ItemService {
         this.scraper = scraper;
     }
 
-    public double findPreviousPrice(Item item) {
-        String itemId = item.getId();
-        Optional<ScrapeObservation> newestObservation =
-                scrapeObservationRepository.findAllByItemId(itemId)
-                        .stream()
-                        .filter(elem -> elem.getScrapedAt() != null)
-                        .max(Comparator.comparing(ScrapeObservation::getScrapedAt));
 
-        return 1.0;
-    }
-
-
-    public void updateItem(CreateArticleDTO dto) {
-        log.info("Scraping" + dto.toString());
+    public void updateItem(CreateItemDto dto) {
+        log.info("Scraping {}", dto);
 
         Item item = itemRepository
                 .findByUrl(dto.getUrl())
                 .orElseGet(() -> createInitialItem(dto));
 
-        CurrentState currentState = secondaryUpdate(item);
+        secondaryUpdate(item);
 
-        item.setCurrentState(currentState);
-        item.setAvailable(scraper.isAvailable());
-        LocalDateTime now = LocalDateTime.now();
-        item.setFirstSeenAt(now);
-        item.setLastSeenAt(now);
         itemRepository.save(item);
 
         log.info("Saved article {}", item);
     }
 
 
-    private Item createInitialItem(CreateArticleDTO dto) {
+    private Item createInitialItem(CreateItemDto dto) {
         log.info("Creating new article for {}", dto.getUrl());
 
         Item item = new Item();
         item.setName(scraper.getName());
         item.setSize(dto.getSize());
         item.setUrl(dto.getUrl());
-        item.setAvailable(scraper.isAvailable());
 
+        // originalPrice set only once
+        CurrentState currentState = new CurrentState();
+        currentState.setOriginalPrice(scraper.getPrice());
+
+        item.setCurrentState(currentState);
+
+        LocalDateTime now = LocalDateTime.now();
+        item.setFirstSeenAt(now);
+        item.setLastSeenAt(now);
 
         return itemRepository.save(item);
     }
@@ -78,33 +68,26 @@ public class ItemService {
 
 
     @Transactional
-    public CurrentState secondaryUpdate(Item item) {
+    public void secondaryUpdate(Item item) {
         log.info("Performing secondary scrape for {}", item.getUrl());
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Observation (history)
+        //ScrapeObservation save
         ScrapeObservation observation = new ScrapeObservation();
         observation.setPrice(scraper.getPrice());
         observation.setDiscountPercent(scraper.getPercentage());
         observation.setAvailability(scraper.isAvailable());
         observation.setScrapedAt(now);
         observation.setItemId(item.getId());
-
         scrapeObservationRepository.save(observation);
 
-        // Update article timestamps
         item.setLastSeenAt(now);
 
-        // Current state (latest snapshot)
-        CurrentState currentState = new CurrentState();
+        CurrentState currentState = item.getCurrentState();
         currentState.setPrice(scraper.getPrice());
-        // TODO
-        // findOlderpRice
-        findPreviousPrice(item);
         currentState.setDiscountPercent(scraper.getPercentage());
-
-        return currentState;
+        currentState.setAvailable(scraper.isAvailable());
     }
 
 
