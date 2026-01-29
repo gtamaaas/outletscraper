@@ -10,28 +10,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
 @Slf4j
 public class FileParser {
 
-    private static final String FILE_PATH = "src/main/resources/data/list.txt";
-
 
     private final ValidationHelpers validationhelpers;
-    private final ItemRepository itemRepository;
 
     public FileParser(ValidationHelpers validationhelpers, ItemRepository itemRepository) {
         this.validationhelpers = validationhelpers;
-        this.itemRepository = itemRepository;
     }
 
-//    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
-    public void readFile() {
+
+    public List<CreateItemDto> readFile(String file) {
         log.info("Opening file");
         int lineCount = 0;
-        try(BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
+        List<CreateItemDto> listOfCreateItemDtos = new ArrayList<>();
+        try(BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line = br.readLine();
             ++lineCount;
             while (line != null) {
@@ -46,16 +45,14 @@ public class FileParser {
                 validationhelpers.checkValidUrl(array[0]);
                 validationhelpers.checkCorrectSize(array[1]);
                 CreateItemDto createItemDto = new CreateItemDto(array[0], Size.valueOf(array[1]));
+                listOfCreateItemDtos.add(createItemDto);
                 line = br.readLine();
-                Item item = new Item();
-                item.setUrl(createItemDto.getUrl());
-                item.setSize(createItemDto.getSize());
-                itemRepository.insert(item);
-                log.info("Created articleDTO" + createItemDto.toString());
+                log.info("Created itemDTO" + createItemDto.toString());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return listOfCreateItemDtos;
 
     }
 }

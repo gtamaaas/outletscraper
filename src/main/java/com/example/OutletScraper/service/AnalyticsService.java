@@ -42,13 +42,19 @@ public class AnalyticsService {
 
     public boolean lowestPrice(Item item, ScrapeObservation observation) {
         Analytics analytics = item.getAnalytics();
-        if (analytics == null)
+
+        if (analytics == null) {
             analytics = new Analytics();
-        if(observation.getPrice() < analytics.getLowestPriceEver() || analytics.getLowestPriceEver() == 0) {
+            item.setAnalytics(analytics);
+        }
+
+        if (analytics.getLowestPriceEver() == 0 ||
+                observation.getPrice() < analytics.getLowestPriceEver()) {
+
             analytics.setLowestPriceEver(observation.getPrice());
             return true;
         }
-        item.setAnalytics(analytics);
+
         return false;
     }
 
