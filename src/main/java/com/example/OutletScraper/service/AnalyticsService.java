@@ -31,4 +31,10 @@ public class AnalyticsService {
     }
 
 
+    public int daySinceObserved(Item item) {
+        LocalDateTime firstTimeSeen = item.getFirstSeenAt();
+        LocalDateTime today = LocalDateTime.now();
+
+        return (int) ChronoUnit.DAYS.between(firstTimeSeen, today) + 1;
+    }
 }

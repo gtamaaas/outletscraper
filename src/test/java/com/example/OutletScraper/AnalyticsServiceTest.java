@@ -5,12 +5,11 @@ import com.example.OutletScraper.model.Item.ScrapeObservation;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
 import com.example.OutletScraper.service.AnalyticsService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Incubating;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +21,7 @@ public class AnalyticsServiceTest {
 
     @MockitoBean
     private ScrapeObservationRepository scrapeObservationRepository;
+
 
     @Autowired
     private AnalyticsService analyticsService;
@@ -49,5 +49,12 @@ public class AnalyticsServiceTest {
 
 
         assertEquals(5.0, result);
+    }
+
+    @Test
+    void ifObservedToDayValueShouldBeOne() {
+        Item item = new Item();
+        item.setFirstSeenAt(LocalDateTime.now());
+        assertEquals(1, analyticsService.daySinceObserved(item));
     }
 }
