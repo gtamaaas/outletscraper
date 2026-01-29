@@ -1,5 +1,6 @@
 package com.example.OutletScraper;
 
+import com.example.OutletScraper.model.Item.CurrentState;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.ScrapeObservation;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
@@ -12,7 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,5 +57,34 @@ public class AnalyticsServiceTest {
         Item item = new Item();
         item.setFirstSeenAt(LocalDateTime.now());
         assertEquals(1, analyticsService.daySinceObserved(item));
+    }
+
+
+    @Test
+    void ifPriceIsBiggerThanOriginalPriceThenFakeDiscount() {
+        Item item = new Item();
+        CurrentState currentState = new CurrentState();
+        item.setCurrentState(currentState);
+        item.getCurrentState().setOriginalPrice(500);
+        // with these percentage, the real price should be 571.42
+        item.getCurrentState().setPrice(400);
+        item.getCurrentState().setDiscountPercent(30);
+
+        assertTrue(analyticsService.isFakeDiscount(item));
+
+    }
+
+
+    @Test
+    void shouldReturnTrueForRealDiscounts() {
+        Item item = new Item();
+        CurrentState currentState = new CurrentState();
+        item.setCurrentState(currentState);
+        item.getCurrentState().setOriginalPrice(577);
+        item.getCurrentState().setPrice(375.05);
+        item.getCurrentState().setDiscountPercent(35);
+
+        assertFalse(analyticsService.isFakeDiscount(item));
+
     }
 }
