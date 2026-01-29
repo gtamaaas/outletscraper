@@ -1,5 +1,6 @@
 package com.example.OutletScraper;
 
+import com.example.OutletScraper.model.Item.Analytics;
 import com.example.OutletScraper.model.Item.CurrentState;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.ScrapeObservation;
@@ -87,4 +88,37 @@ public class AnalyticsServiceTest {
         assertFalse(analyticsService.isFakeDiscount(item));
 
     }
+
+    @Test
+    void analyticsShouldBeUpdated() {
+        Item item = new Item();
+        item.setId("test");
+        item.setFirstSeenAt(LocalDateTime.now().minusDays(2));
+
+        CurrentState state = new CurrentState();
+        state.setOriginalPrice(100);
+        state.setPrice(80);
+        state.setDiscountPercent(20);
+        item.setCurrentState(state);
+
+        ScrapeObservation obs1 = mock(ScrapeObservation.class);
+        ScrapeObservation obs2 = mock(ScrapeObservation.class);
+
+        when(obs1.getPrice()).thenReturn(90.0);
+        when(obs2.getPrice()).thenReturn(80.0);
+
+        when(scrapeObservationRepository.findAllByItemId("test"))
+                .thenReturn(List.of(obs1, obs2));
+
+        analyticsService.updateAnalytics(item);
+
+        assertNotNull(item.getAnalytics());
+
+        Analytics analytics = item.getAnalytics();
+        assertEquals(80.0, analytics.getLowestPriceEver());
+        assertEquals(3, analytics.getDaysSinceObserved()); // inclusive
+        assertFalse(analytics.isFakeDiscount());
+
+    }
+
 }

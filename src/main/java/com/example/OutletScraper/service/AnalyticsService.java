@@ -1,5 +1,6 @@
 package com.example.OutletScraper.service;
 
+import com.example.OutletScraper.model.Item.Analytics;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.ScrapeObservation;
 import com.example.OutletScraper.repository.ItemRepository;
@@ -23,6 +24,22 @@ public class AnalyticsService {
     public AnalyticsService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository) {
         this.itemRepository = itemRepository;
         this.scrapeObservationRepository = scrapeObservationRepository;
+    }
+
+    public void updateAnalytics(Item item) {
+        Analytics analytics = new Analytics();
+        double lowestPrice = calculateLowestPrice(item);
+        int daySinceObserved = daySinceObserved(item);
+        boolean isFakeDiscount = isFakeDiscount(item);
+
+        analytics.setLowestPriceEver(lowestPrice);
+        analytics.setDaysSinceObserved(daySinceObserved);
+        analytics.setFakeDiscount(isFakeDiscount);
+
+        item.setAnalytics(analytics);
+
+        itemRepository.save(item);
+
     }
 
     public double calculateLowestPrice(Item item) {
@@ -54,4 +71,6 @@ public class AnalyticsService {
 
         return Math.abs(currentPrice - expectedPrice) > EPSILON;
     }
+
+
 }
