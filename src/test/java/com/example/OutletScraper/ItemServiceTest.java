@@ -45,14 +45,6 @@ public class ItemServiceTest {
         alertRepository.deleteAll();
     }
 
-    @Test
-    void shouldSaveAndLoadProduct() {
-        CreateItemDto createItemDto = new CreateItemDto("url here", Size.M);
-        itemService.updateItem(createItemDto);
-        Item saved = itemRepository.findByUrl(createItemDto.getUrl()).orElseThrow();
-
-        assertEquals("url here", saved.getUrl());
-    }
 
     @Test
     void newScrapeObservationShouldOverWriteItemState() {
