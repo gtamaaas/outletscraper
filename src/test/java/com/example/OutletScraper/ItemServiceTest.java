@@ -4,6 +4,7 @@ import com.example.OutletScraper.dto.CreateItemDto;
 import com.example.OutletScraper.model.Item.CurrentState;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.Size;
+import com.example.OutletScraper.repository.AlertRepository;
 import com.example.OutletScraper.repository.ItemRepository;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;
 import com.example.OutletScraper.service.ItemService;
@@ -33,11 +34,15 @@ public class ItemServiceTest {
     @MockitoBean
     private Scraper scraper;
 
+    @Autowired
+    private AlertRepository alertRepository;
+
 
     @BeforeEach
     void cleanDb() {
         itemRepository.deleteAll();
         scrapeObservationRepository.deleteAll();
+        alertRepository.deleteAll();
     }
 
     @Test

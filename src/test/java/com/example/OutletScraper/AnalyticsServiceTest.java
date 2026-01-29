@@ -28,31 +28,6 @@ public class AnalyticsServiceTest {
     @Autowired
     private AnalyticsService analyticsService;
 
-
-    @Test
-    void shouldReturnLowestPrice() {
-
-        Item item = new Item();
-        item.setId("test");
-
-        ScrapeObservation obs1 = mock(ScrapeObservation.class);
-        ScrapeObservation obs2 = mock(ScrapeObservation.class);
-        ScrapeObservation obs3 = mock(ScrapeObservation.class);
-
-        when(obs1.getPrice()).thenReturn(500.0);
-        when(obs2.getPrice()).thenReturn(5.0);
-        when(obs3.getPrice()).thenReturn(25.99);
-
-        when(scrapeObservationRepository.findAllByItemId(item.getId()))
-                .thenReturn(List.of(obs1, obs2, obs3));
-
-
-        double result = analyticsService.calculateLowestPrice(item);
-
-
-        assertEquals(5.0, result);
-    }
-
     @Test
     void ifObservedToDayValueShouldBeOne() {
         Item item = new Item();
@@ -115,7 +90,6 @@ public class AnalyticsServiceTest {
         assertNotNull(item.getAnalytics());
 
         Analytics analytics = item.getAnalytics();
-        assertEquals(80.0, analytics.getLowestPriceEver());
         assertEquals(3, analytics.getDaysSinceObserved()); // inclusive
         assertFalse(analytics.isFakeDiscount());
 

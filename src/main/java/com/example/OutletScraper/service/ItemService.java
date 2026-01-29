@@ -1,6 +1,8 @@
 package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.CreateItemDto;
+import com.example.OutletScraper.model.Alert.Alert;
+import com.example.OutletScraper.model.Item.Analytics;
 import com.example.OutletScraper.model.Item.Item;
 import com.example.OutletScraper.model.Item.CurrentState;
 import com.example.OutletScraper.model.Item.ScrapeObservation;
@@ -20,13 +22,19 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ScrapeObservationRepository scrapeObservationRepository;
     private final Scraper scraper;
+    private final AnalyticsService analyticsService;
+    private final AlertService alertService;
 
-    public ItemService(ItemRepository itemRepository, ScrapeObservationRepository scrapeObservationRepository, Scraper scraper) {
+    public ItemService(ItemRepository itemRepository,
+                       ScrapeObservationRepository scrapeObservationRepository,
+                       Scraper scraper, AnalyticsService analyticsService,
+                       AlertService alertService) {
         this.itemRepository = itemRepository;
         this.scrapeObservationRepository = scrapeObservationRepository;
         this.scraper = scraper;
+        this.analyticsService = analyticsService;
+        this.alertService = alertService;
     }
-
 
     public void updateItem(CreateItemDto dto) {
         log.info("Scraping {}", dto);
@@ -65,15 +73,12 @@ public class ItemService {
     }
 
 
-
-
     @Transactional
     public void secondaryUpdate(Item item) {
         log.info("Performing secondary scrape for {}", item.getUrl());
 
         LocalDateTime now = LocalDateTime.now();
 
-        //ScrapeObservation save
         ScrapeObservation observation = new ScrapeObservation();
         observation.setPrice(scraper.getPrice());
         observation.setDiscountPercent(scraper.getPercentage());
@@ -82,12 +87,15 @@ public class ItemService {
         observation.setItemId(item.getId());
         scrapeObservationRepository.save(observation);
 
-        item.setLastSeenAt(now);
+        // Evaluate alerts before mutating state
+        alertService.evaluateAlerts(item, observation);
 
+        // Update item state
+        item.setLastSeenAt(now);
         CurrentState currentState = item.getCurrentState();
-        currentState.setPrice(scraper.getPrice());
-        currentState.setDiscountPercent(scraper.getPercentage());
-        currentState.setAvailable(scraper.isAvailable());
+        currentState.setPrice(observation.getPrice());
+        currentState.setDiscountPercent(observation.getDiscountPercent());
+        currentState.setAvailable(observation.isAvailability());
     }
 
 

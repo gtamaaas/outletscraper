@@ -28,11 +28,9 @@ public class AnalyticsService {
 
     public void updateAnalytics(Item item) {
         Analytics analytics = new Analytics();
-        double lowestPrice = calculateLowestPrice(item);
         int daySinceObserved = daySinceObserved(item);
         boolean isFakeDiscount = isFakeDiscount(item);
 
-        analytics.setLowestPriceEver(lowestPrice);
         analytics.setDaysSinceObserved(daySinceObserved);
         analytics.setFakeDiscount(isFakeDiscount);
 
@@ -42,12 +40,16 @@ public class AnalyticsService {
 
     }
 
-    public double calculateLowestPrice(Item item) {
-        return scrapeObservationRepository.findAllByItemId(item.getId())
-                .stream()
-                .map(ScrapeObservation::getPrice)
-                .min(Double::compareTo)
-                .orElseThrow(() -> new IllegalStateException("No price observations found"));
+    public boolean lowestPrice(Item item, ScrapeObservation observation) {
+        Analytics analytics = item.getAnalytics();
+        if (analytics == null)
+            analytics = new Analytics();
+        if(observation.getPrice() < analytics.getLowestPriceEver() || analytics.getLowestPriceEver() == 0) {
+            analytics.setLowestPriceEver(observation.getPrice());
+            return true;
+        }
+        item.setAnalytics(analytics);
+        return false;
     }
 
 
