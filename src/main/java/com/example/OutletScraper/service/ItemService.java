@@ -1,111 +1,164 @@
 package com.example.OutletScraper.service;
 
-import com.example.OutletScraper.dto.CreateItemDto;
-import com.example.OutletScraper.dto.InitialScrapeResultDto;
-import com.example.OutletScraper.dto.SecondaryScrapeResultDto;
-import com.example.OutletScraper.model.Alert.Alert;
-import com.example.OutletScraper.model.Item.Analytics;
-import com.example.OutletScraper.model.Item.Item;
-import com.example.OutletScraper.model.Item.CurrentState;
-import com.example.OutletScraper.model.Item.ScrapeObservation;
+import com.example.OutletScraper.dto.*;
+import com.example.OutletScraper.model.Analytics;
+import com.example.OutletScraper.model.CurrentState;
+import com.example.OutletScraper.model.Item;
+import com.example.OutletScraper.model.ScrapeObservation;
 import com.example.OutletScraper.repository.ItemRepository;
-import com.example.OutletScraper.repository.ScrapeObservationRepository;
-import com.example.OutletScraper.scraper.OutletScraper;
-import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.WebDriver;
+import com.example.OutletScraper.scraper.ScrapeService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Slf4j
 @Service
 public class ItemService {
+    private ItemRepository itemRepository;
+    private ScrapeService scrapeService;
+    private ScrapeObservationService scrapeObservationService;
+    private AlertService alertService;
 
-
-    private final ItemRepository itemRepository;
-    private final ScrapeObservationRepository scrapeObservationRepository;
-    private final OutletScraper scraper;
-    private final AnalyticsService analyticsService;
-    private final AlertService alertService;
-
-    public ItemService(ItemRepository itemRepository,
-                       ScrapeObservationRepository scrapeObservationRepository,
-                       OutletScraper scraper, AnalyticsService analyticsService,
-                       AlertService alertService) {
+    public ItemService(ItemRepository itemRepository, ScrapeService scrapeService, ScrapeObservationService scrapeObservationService, AlertService alertService) {
         this.itemRepository = itemRepository;
-        this.scrapeObservationRepository = scrapeObservationRepository;
-        this.scraper = scraper;
-        this.analyticsService = analyticsService;
+        this.scrapeService = scrapeService;
+        this.scrapeObservationService = scrapeObservationService;
         this.alertService = alertService;
     }
 
-    public void updateItem(CreateItemDto dto, WebDriver webDriver) {
-        log.info("Scraping {}", dto);
+    public Item upsertItem(CreateItemDto dto) {
+        InternalCreateItemDto internal =
+                new InternalCreateItemDto(dto.getUrl(), dto.getSize(),
+                        itemRepository.existsByUrl(dto.getUrl()));
 
-        Item item = itemRepository
-                .findByUrl(dto.getUrl())
-                .orElseGet(() -> createInitialItem(dto, webDriver));
+        ScrapeResult result =
+                scrapeService.performSingleItemScrape(internal);
 
-        secondaryUpdate(item, webDriver);
+        if (result instanceof InitialScrapeResult initialResult) {
+            return createNewItem(initialResult);
+        }
 
+        if (result instanceof SecondaryScrapeResult secondaryResult) {
+            // existing item
+            Item existingItem = itemRepository
+                    .findByUrl(dto.getUrl())
+                    .orElseThrow(() ->
+                            new IllegalStateException(
+                                    "Item marked as existing but not found: " + dto.getUrl()
+                            )
+                    );
 
-        itemRepository.save(item);
+            return updateExistingItem(existingItem, secondaryResult);
+        }
+        return null;
+    }
 
-        log.info("Saved article {}", item);
+    // void??
+    // TODO
+    public List<Item> upsertItems(List<CreateItemDto> dtos) {
+
+        List<InternalCreateItemDto> internalCreateItemDtos = new ArrayList<>();
+        for (CreateItemDto dto : dtos) {
+            internalCreateItemDtos.add(
+                    new InternalCreateItemDto(
+                            dto.getUrl(),
+                            dto.getSize(),
+                            itemRepository.existsByUrl(dto.getUrl())
+                    )
+            );
+        }
+
+        List<ScrapeResult> scrapeResultList =
+                scrapeService.performItemsScrape(internalCreateItemDtos);
+
+        List<Item> resultItems = new ArrayList<>();
+
+        for (ScrapeResult scrapeResult : scrapeResultList) {
+
+            if (scrapeResult instanceof InitialScrapeResult initialResult) {
+                resultItems.add(createNewItem(initialResult));
+                continue;
+            }
+
+            if (scrapeResult instanceof SecondaryScrapeResult secondaryResult) {
+                Item existingItem = itemRepository
+                        .findByUrl(scrapeResult.getUrl())
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Item marked as existing but not found: " + scrapeResult.getUrl()
+                                )
+                        );
+
+                resultItems.add(updateExistingItem(existingItem, secondaryResult));
+            }
+        }
+
+        return resultItems;
     }
 
 
-    private Item createInitialItem(CreateItemDto dto, WebDriver webDriver) {
-        log.info("Creating new article for {}", dto.getUrl());
-
-        InitialScrapeResultDto initialScrapeResultDto = scraper.initialScrape(dto.getUrl(), dto.getSize(), webDriver);
-
+        public Item createNewItem(InitialScrapeResult scrapeResult) {
         Item item = new Item();
-        item.setName(initialScrapeResultDto.getName());
-        item.setSize(dto.getSize());
-        item.setUrl(dto.getUrl());
+        item.setUrl(scrapeResult.getUrl());
+        item.setName(scrapeResult.getName());
+        item.setSize(scrapeResult.getSize());
 
         // originalPrice set only once
         CurrentState currentState = new CurrentState();
-        currentState.setOriginalPrice(initialScrapeResultDto.getPrice());
+        currentState.setOriginalPrice(scrapeResult.getPrice());
+        currentState.setCurrentPrice(scrapeResult.getPrice());
+        currentState.setAvailable(scrapeResult.isAvailable());
 
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(9999);
+
+        item.setAnalytics(analytics);
         item.setCurrentState(currentState);
 
         LocalDateTime now = LocalDateTime.now();
         item.setFirstSeenAt(now);
         item.setLastSeenAt(now);
 
-        return itemRepository.save(item);
-    }
-
-
-    @Transactional
-    public void secondaryUpdate(Item item, WebDriver webDriver) {
-        log.info("Performing secondary scrape for {}", item.getUrl());
-        SecondaryScrapeResultDto secondaryScrapeResultDto = scraper.secondaryScrape(item.getUrl(), item.getSize(), webDriver);
-        LocalDateTime now = LocalDateTime.now();
-
-        ScrapeObservation observation = new ScrapeObservation();
-        observation.setPrice(secondaryScrapeResultDto.getPrice());
-        observation.setDiscountPercent(secondaryScrapeResultDto.getPercentage());
-        observation.setAvailability(secondaryScrapeResultDto.isAvailable());
-        observation.setScrapedAt(now);
-        observation.setItemId(item.getId());
-        scrapeObservationRepository.save(observation);
-
-        // Evaluate alerts before mutating state
-        alertService.evaluateAlerts(item, observation);
 
         itemRepository.save(item);
-
-        // Update item state
-        item.setLastSeenAt(now);
-        CurrentState currentState = item.getCurrentState();
-        currentState.setPrice(observation.getPrice());
-        currentState.setDiscountPercent(observation.getDiscountPercent());
-        currentState.setAvailable(observation.isAvailability());
+        return item;
     }
 
 
+
+    public Item updateExistingItem(Item existingItem, SecondaryScrapeResult secondaryScrapeResult) {
+        LocalDateTime now = LocalDateTime.now();
+
+        ScrapeObservation observation =
+                scrapeObservationService.createObservation(existingItem, now, secondaryScrapeResult);
+
+        alertService.evaluateAlerts(existingItem, observation);
+
+        updateItemCurrentState(existingItem, secondaryScrapeResult, now);
+
+        itemRepository.save(existingItem);
+
+        return existingItem;
+    }
+
+    public CurrentState updateItemCurrentState
+            (Item item,
+             SecondaryScrapeResult secondaryScrapeResult,
+             LocalDateTime now) {
+
+        CurrentState currentState = item.getCurrentState();
+        currentState.setCurrentPrice(secondaryScrapeResult.getPrice());
+        currentState.setDiscountPercent(secondaryScrapeResult.getPercentage());
+        currentState.setAvailable(secondaryScrapeResult.isAvailable());
+
+        item.setLastSeenAt(now);
+        item.setCurrentState(currentState);
+
+        return currentState;
+    }
+
+    public List<Item> getAllProducts() {
+        return itemRepository.findAll();
+    }
 }

@@ -1,11 +1,12 @@
 package com.example.OutletScraper.repository;
 
-import com.example.OutletScraper.model.Item.ScrapeObservation;
+import com.example.OutletScraper.model.ScrapeObservation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
+@Repository
 public interface ScrapeObservationRepository extends MongoRepository<ScrapeObservation, String> {
-    List<ScrapeObservation> findAllByItemId(String itemId);
-
+    Optional<ScrapeObservation> findByItemId(String id);
 }

@@ -1,12 +1,13 @@
 package com.example.OutletScraper.dto;
 
-import com.example.OutletScraper.model.Item.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreateItemDto {
     private String url;
-    private Size size;
+    private String size;
 }
