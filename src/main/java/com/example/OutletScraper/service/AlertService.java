@@ -13,8 +13,15 @@ import java.time.LocalDateTime;
 @Service
 public class AlertService {
 
-    @Autowired
+
     private AlertRepository alertRepository;
+    private AnalyticsService analyticsService;
+
+
+    public AlertService(AlertRepository alertRepository, AnalyticsService analyticsService) {
+        this.alertRepository = alertRepository;
+        this.analyticsService = analyticsService;
+    }
 
     public void evaluateAlerts(Item item, ScrapeObservation observation) {
         LocalDateTime now = observation.getScrapedAt();
@@ -60,11 +67,9 @@ public class AlertService {
             createPriceAlert(item, AlertType.PRICE_WENT_UP, oldPrice, newPrice, now);
         }
 
-        // Check if lowest price ever
-        // TODO logic for this
-//        if (isLowestPriceEver(item, newPrice)) {
-//            createLowestPriceAlert(item, newPrice, now);
-//        }
+        if (analyticsService.checkForLowestPrice(item, observation)) {
+            createLowestPriceAlert(item, newPrice, now);
+        }
     }
 
     private void createPriceAlert(Item item, AlertType type, double oldPrice,

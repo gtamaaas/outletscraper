@@ -22,12 +22,18 @@ public class ItemService {
     private ScrapeService scrapeService;
     private ScrapeObservationService scrapeObservationService;
     private AlertService alertService;
+    private AnalyticsService analyticsService;
 
-    public ItemService(ItemRepository itemRepository, ScrapeService scrapeService, ScrapeObservationService scrapeObservationService, AlertService alertService) {
+    public ItemService(ItemRepository itemRepository,
+                       ScrapeService scrapeService,
+                       ScrapeObservationService scrapeObservationService,
+                       AlertService alertService,
+                       AnalyticsService analyticsService) {
         this.itemRepository = itemRepository;
         this.scrapeService = scrapeService;
         this.scrapeObservationService = scrapeObservationService;
         this.alertService = alertService;
+        this.analyticsService = analyticsService;
     }
 
     public Item upsertItem(CreateItemDto dto) {
@@ -57,8 +63,6 @@ public class ItemService {
         return null;
     }
 
-    // void??
-    // TODO
     public List<Item> upsertItems(List<CreateItemDto> dtos) {
 
         List<InternalCreateItemDto> internalCreateItemDtos = new ArrayList<>();
