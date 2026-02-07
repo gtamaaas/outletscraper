@@ -4,14 +4,18 @@ import com.example.OutletScraper.dto.*;
 import com.example.OutletScraper.dto.scrapeResult.InitialScrapeResult;
 import com.example.OutletScraper.dto.scrapeResult.ScrapeResult;
 import com.example.OutletScraper.dto.scrapeResult.SecondaryScrapeResult;
+import com.example.OutletScraper.fileReaders.ItemImportService;
 import com.example.OutletScraper.model.Analytics;
 import com.example.OutletScraper.model.CurrentState;
 import com.example.OutletScraper.model.Item;
 import com.example.OutletScraper.model.ScrapeObservation;
 import com.example.OutletScraper.repository.ItemRepository;
 import com.example.OutletScraper.scraper.ScrapeService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,19 +25,16 @@ public class ItemService {
     private ItemRepository itemRepository;
     private ScrapeService scrapeService;
     private ScrapeObservationService scrapeObservationService;
-    private AlertService alertService;
-    private AnalyticsService analyticsService;
+    private AlertService alertService;;
 
     public ItemService(ItemRepository itemRepository,
                        ScrapeService scrapeService,
                        ScrapeObservationService scrapeObservationService,
-                       AlertService alertService,
-                       AnalyticsService analyticsService) {
+                       AlertService alertService) {
         this.itemRepository = itemRepository;
         this.scrapeService = scrapeService;
         this.scrapeObservationService = scrapeObservationService;
         this.alertService = alertService;
-        this.analyticsService = analyticsService;
     }
 
     public Item upsertItem(CreateItemDto dto) {
@@ -168,4 +169,6 @@ public class ItemService {
     public List<Item> getAllProducts() {
         return itemRepository.findAll();
     }
+
+
 }
