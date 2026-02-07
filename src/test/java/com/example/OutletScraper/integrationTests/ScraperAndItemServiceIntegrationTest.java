@@ -1,6 +1,7 @@
 package com.example.OutletScraper.integrationTests;
 
 import com.example.OutletScraper.dto.CreateItemDto;
+import com.example.OutletScraper.model.Analytics;
 import com.example.OutletScraper.model.CurrentState;
 import com.example.OutletScraper.model.Item;
 import com.example.OutletScraper.repository.AlertRepository;
@@ -83,6 +84,10 @@ public class ScraperAndItemServiceIntegrationTest {
         currentState.setCurrentPrice(500.0);
         item.setCurrentState(currentState);
 
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(50);
+        item.setAnalytics(analytics);
+
         itemRepository.save(item);
 
         // creating new Dto request
@@ -105,6 +110,10 @@ public class ScraperAndItemServiceIntegrationTest {
         item.setUrl(fileUrl);
         item.setName("PANTALONI SLIM FIT COMFORT STRETCH CU ȘNUR");
         item.setCurrentState(currentState);
+
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(50);
+        item.setAnalytics(analytics);
 
         itemRepository.save(item);
 
