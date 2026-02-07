@@ -46,6 +46,10 @@ class AlertServiceIntegrationTests {
         state.setAvailable(false);
         state.setCurrentPrice(100.0);
         item.setCurrentState(state);
+
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(50);
+        item.setAnalytics(analytics);
         item = itemRepository.save(item);
 
         ScrapeObservation observation = new ScrapeObservation();
@@ -75,6 +79,11 @@ class AlertServiceIntegrationTests {
         state.setAvailable(false);
         state.setCurrentPrice(100.0);
         item.setCurrentState(state);
+
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(1);
+        item.setAnalytics(analytics);
+
         item = itemRepository.save(item);
 
         ScrapeObservation observation = new ScrapeObservation();

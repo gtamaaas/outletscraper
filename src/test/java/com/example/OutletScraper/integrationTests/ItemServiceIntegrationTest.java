@@ -2,6 +2,7 @@ package com.example.OutletScraper.integrationTests;
 
 
 import com.example.OutletScraper.dto.scrapeResult.SecondaryScrapeResult;
+import com.example.OutletScraper.model.Analytics;
 import com.example.OutletScraper.model.CurrentState;
 import com.example.OutletScraper.model.Item;
 import com.example.OutletScraper.model.ScrapeObservation;
@@ -50,6 +51,9 @@ public class ItemServiceIntegrationTest {
         currentState.setDiscountPercent(10);
         currentState.setAvailable(false);
         existingItem.setCurrentState(currentState);
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(9999);
+        existingItem.setAnalytics(analytics);
 
         SecondaryScrapeResult scrapeResult = new SecondaryScrapeResult();
         scrapeResult.setPrice(40.0);
@@ -78,6 +82,10 @@ public class ItemServiceIntegrationTest {
         CurrentState currentState = new CurrentState();
         currentState.setCurrentPrice(500.0);
         existingItem.setCurrentState(currentState);
+
+        Analytics analytics = new Analytics();
+        analytics.setLowestPriceEver(9999);
+        existingItem.setAnalytics(analytics);
 
         SecondaryScrapeResult scrapeResult = new SecondaryScrapeResult();
         scrapeResult.setPrice(40.0);
