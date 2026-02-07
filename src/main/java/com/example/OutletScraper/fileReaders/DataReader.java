@@ -1,4 +1,4 @@
-package com.example.OutletScraper;
+package com.example.OutletScraper.fileReaders;
 
 import com.example.OutletScraper.dto.CreateItemDto;
 

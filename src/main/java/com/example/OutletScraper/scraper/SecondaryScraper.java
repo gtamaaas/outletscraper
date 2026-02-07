@@ -1,8 +1,8 @@
 package com.example.OutletScraper.scraper;
 
 import com.example.OutletScraper.dto.InternalCreateItemDto;
-import com.example.OutletScraper.dto.ScrapeResult;
-import com.example.OutletScraper.dto.SecondaryScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.ScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.SecondaryScrapeResult;
 import org.openqa.selenium.WebDriver;
 import org.springframework.stereotype.Service;
 

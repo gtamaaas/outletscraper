@@ -1,6 +1,7 @@
 package com.example.OutletScraper.scraper;
 
 import com.example.OutletScraper.dto.*;
+import com.example.OutletScraper.dto.scrapeResult.ScrapeResult;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;

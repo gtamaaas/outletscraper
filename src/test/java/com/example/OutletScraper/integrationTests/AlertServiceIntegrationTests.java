@@ -1,6 +1,8 @@
 package com.example.OutletScraper.integrationTests;
 
 import com.example.OutletScraper.model.*;
+import com.example.OutletScraper.model.alert.Alert;
+import com.example.OutletScraper.model.alert.AlertType;
 import com.example.OutletScraper.repository.AlertRepository;
 import com.example.OutletScraper.repository.ItemRepository;
 import com.example.OutletScraper.service.AlertService;

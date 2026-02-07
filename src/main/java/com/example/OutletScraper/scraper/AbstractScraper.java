@@ -1,7 +1,7 @@
 package com.example.OutletScraper.scraper;
 
 import com.example.OutletScraper.dto.InternalCreateItemDto;
-import com.example.OutletScraper.dto.ScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.ScrapeResult;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

@@ -1,6 +1,6 @@
 package com.example.OutletScraper.service;
 
-import com.example.OutletScraper.dto.SecondaryScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.SecondaryScrapeResult;
 import com.example.OutletScraper.model.Item;
 import com.example.OutletScraper.model.ScrapeObservation;
 import com.example.OutletScraper.repository.ScrapeObservationRepository;

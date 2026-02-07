@@ -1,4 +1,4 @@
-package com.example.OutletScraper.dto;
+package com.example.OutletScraper.dto.scrapeResult;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

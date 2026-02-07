@@ -1,4 +1,4 @@
-package com.example.OutletScraper.model;
+package com.example.OutletScraper.model.alert;
 
 public enum AlertType {
     PRICE_DROP,

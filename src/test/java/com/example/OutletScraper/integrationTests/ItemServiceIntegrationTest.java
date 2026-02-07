@@ -1,8 +1,7 @@
 package com.example.OutletScraper.integrationTests;
 
 
-import com.example.OutletScraper.dto.CreateItemDto;
-import com.example.OutletScraper.dto.SecondaryScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.SecondaryScrapeResult;
 import com.example.OutletScraper.model.CurrentState;
 import com.example.OutletScraper.model.Item;
 import com.example.OutletScraper.model.ScrapeObservation;

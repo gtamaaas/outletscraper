@@ -1,6 +1,6 @@
 package com.example.OutletScraper.repository;
 
-import com.example.OutletScraper.model.Alert;
+import com.example.OutletScraper.model.alert.Alert;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

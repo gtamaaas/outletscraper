@@ -1,4 +1,4 @@
-package com.example.OutletScraper.model;
+package com.example.OutletScraper.model.alert;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

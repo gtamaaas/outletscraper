@@ -1,7 +1,7 @@
 package com.example.OutletScraper.service;
 
-import com.example.OutletScraper.model.Alert;
-import com.example.OutletScraper.model.AlertType;
+import com.example.OutletScraper.model.alert.Alert;
+import com.example.OutletScraper.model.alert.AlertType;
 import com.example.OutletScraper.model.Item;
 import com.example.OutletScraper.model.ScrapeObservation;
 import com.example.OutletScraper.repository.AlertRepository;

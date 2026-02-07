@@ -1,6 +1,9 @@
 package com.example.OutletScraper.service;
 
 import com.example.OutletScraper.dto.*;
+import com.example.OutletScraper.dto.scrapeResult.InitialScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.ScrapeResult;
+import com.example.OutletScraper.dto.scrapeResult.SecondaryScrapeResult;
 import com.example.OutletScraper.model.Analytics;
 import com.example.OutletScraper.model.CurrentState;
 import com.example.OutletScraper.model.Item;

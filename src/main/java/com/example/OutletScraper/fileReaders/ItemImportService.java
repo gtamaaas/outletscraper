@@ -1,6 +1,5 @@
 package com.example.OutletScraper.fileReaders;
 
-import com.example.OutletScraper.DataReader;
 import com.example.OutletScraper.dto.CreateItemDto;
 import org.springframework.stereotype.Service;
 

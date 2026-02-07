@@ -1,4 +1,4 @@
-package com.example.OutletScraper.dto;
+package com.example.OutletScraper.dto.scrapeResult;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InitialScrapeResult extends ScrapeResult{
+public class InitialScrapeResult extends ScrapeResult {
     private String name;
 
 
